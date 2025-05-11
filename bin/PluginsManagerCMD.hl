@@ -1,0 +1,3 @@
+declare var JVM_ARGS: str
+
+java "-Djava.awt.headless=true" $JVM_ARGS -jar p"$DIRNAME\\..\\lib\\cmdrunner-2.3.jar" --tool "org.jmeterplugins.repository.PluginManagerCMD" $args
