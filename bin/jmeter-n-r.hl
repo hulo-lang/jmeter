@@ -1,0 +1,58 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to you under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+//  ============================================
+//  Non-GUI version of JMETER.BAT
+//
+//  Drop a JMX file on this batch script, and it
+//  will run it in non-GUI mode, with a log file
+//  formed from the input file name but with the
+//  extension .jtl
+//
+//  Only the first parameter is used.
+//
+//  ============================================
+
+// Check file is supplied
+if ! $args[1] {
+    winNT2()
+}
+
+// Allow special name LAST
+if "LAST" == $args[1] {
+    winNT3()
+}
+
+// Check it has extension .jmx
+if filepath.ext($args[1]) == ".jmx" {
+    winNT3()
+}
+
+fn winNT2() {
+    echo "Please supply a script name with the extension .jmx"
+    pause
+}
+
+fn winNT3() {
+    // Change to script directory
+    pushd filepath.basedir($args[1])
+
+    // use same directory to find jmeter script
+    & "${DIRNAME}jmeter" -n -t filepath.basename($args[1]) -j "${filepath.filename($args[1])}.log" -l "${filepath.filename($args[1])}.jtl" -r $args[2..9]
+
+    popd
+}

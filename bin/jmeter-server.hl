@@ -1,0 +1,83 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to you under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+//   ===============================================================
+//   Enviroment variables
+//   SERVER_PORT (optional) - define the rmiregistry and server port
+//
+//   JVM_ARGS - Java flags - these are handled by jmeter.bat
+//
+//   ===============================================================
+
+
+// Protect environment against changes
+setlocal
+
+if f"jmeter-server.bat".exist() {
+    winNT1()
+    return
+}
+
+echo "Changing to JMeter home directory"
+cd -d $DIRNAME
+
+declare var JMETER_HOME: str
+
+fn winNT1() {
+    if f"$JMETER_HOME\\lib\\ext\\ApacheJMeter_core.jar".exist() {
+        return setCP()
+    }
+    echo "Could not find ApacheJmeter_core.jar ..."
+    // Try to work out JMETER_HOME
+    echo "... Trying JMETER_HOME=.."
+    $JMETER_HOME = ".."
+    if f"$JMETER_HOME\\lib\\ext\\ApacheJMeter_core.jar" {
+        return setCP()
+    }
+    echo "... trying JMETER_HOME=."
+    $JMETER_HOME = "."
+    if f"$JMETER_HOME\\lib\\ext\\ApacheJMeter_core.jar" {
+        return setCP()
+    }
+    echo "Cannot determine JMETER_HOME !"
+}
+
+fn setCP() {
+    echo "Found ApacheJMeter_core.jar"
+
+    // No longer need to create the rmiregistry as it is done by the server
+    // set CLASSPATH=%JMETER_HOME%\lib\ext\ApacheJMeter_core.jar;%JMETER_HOME%\lib\jorphan.jar
+
+    // START rmiregistry %SERVER_PORT%
+    //
+
+    // On NT/2K grab all arguments at once
+    var JMETER_CMD_LINE_ARGS = $args
+
+    if ! #SERVER_PORT {
+        return port()
+    } 
+
+    jmeter -s -j "jmeter-server.log" $JMETER_CMD_LINE_ARGS
+}
+
+fn port() {
+    jmeter -Dserver_port=$SERVER_PORT -s -j "jmeter-server.log" $JMETER_CMD_LINE_ARGS
+}
+
+// No longer needed, as server is started in-process
+// taskkill /F /IM rmiregistry.exe

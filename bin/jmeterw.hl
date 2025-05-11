@@ -15,20 +15,12 @@
 // limitations under the License.
 //
 
-// Drop a JMX file on this script to create a schematic of the test plan as an HTML file
+//   Run JMeter using javaw
 
-comptime when $IsBatch {
-    cd -d $DIRNAME 
-    let name = filepath.basename($args[1])
-} else {
-    let name = $args[1]
-}
+let JM_START: Command = start "Apache_JMeter"
+let JM_LAUNCH: Command = c"javaw.exe"
 
-comptime when $IsBatch {
-    if !$args[1] {
-        $name = "Test"
-    }
-}
+jmeter $args
 
-ant -f "schematic.xml" -Dtest=$name
-pause
+$JM_START = null
+$JM_LAUNCH = null
